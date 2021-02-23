@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Event Click LatLng</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <style type="text/css">
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+
+      /* Optional: Makes the sample page fill the window. */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+	<link rel="stylesheet", href="styles.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="mapJS.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+      function initMap() {
+        const myLatlng = { lat: -25.363, lng: 131.044 };
+		var lastLatLng;
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 4,
+          center: myLatlng,
+        });
+		var myTitle = document.createElement('h1');
+myTitle.style.color = 'white';
+myTitle.style.fontSize = '40px';
+myTitle.innerHTML = "Hello " + getCookie("username") + '. Click to select your secret location';
+
+var myBtn = document.createElement('button');
+
+var mode = "";
+
+if (getCookie("mode") == "login"){
+	myBtn.innerHTML = "Log In";
+	myBtn.addEventListener("click", loginLocation);
+	mode = "login";
+}else{
+	myBtn.innerHTML = "Register";
+	myBtn.addEventListener("click", registerLocation);
+	mode = "register";
+}
+myBtn.classList.add("mapBtn");
+myBtn.classList.add("btn");
+myBtn.classList.add("btn-dark");
+
+var myMsg = document.createElement('h1');
+myMsg.style.color = 'red';
+myMsg.style.fontSize = '20px';
+myMsg.innerHTML = "";
+myMsg.classList.add("mapError");
+
+var myTextDiv = document.createElement('div');
+myTextDiv.appendChild(myMsg);
+myTextDiv.appendChild(myTitle);
+myTextDiv.appendChild(myBtn);
+
+var marker;
+
+
+
+  
+  const image = {
+    url:
+      "marker.png",
+    // This marker is 20 pixels wide by 32 pixels high.
+    size: new google.maps.Size(100, 100),
+    // The origin for this image is (0, 0).
+    origin: new google.maps.Point(0, 0),
+    // The anchor for this image is the base of the flagpole at (0, 32).
+    anchor: new google.maps.Point(50, 50),
+  };
+  
+    const image2 = {
+    url:
+      "marker2.png",
+    // This marker is 20 pixels wide by 32 pixels high.
+    size: new google.maps.Size(10, 10),
+    // The origin for this image is (0, 0).
+    origin: new google.maps.Point(0, 0),
+    // The anchor for this image is the base of the flagpole at (0, 32).
+    anchor: new google.maps.Point(5, 5),
+  };
+
+setCookie("latLng", "");
+
+map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(myTextDiv);
+
+        // Create the initial InfoWindow.
+        let infoWindow = new google.maps.InfoWindow({
+          content: "Click the map to get Lat/Lng!",
+          position: myLatlng,
+        });
+
+        //infoWindow.open(map);
+        // Configure the click listener.
+        map.addListener("click", (mapsMouseEvent) => {
+          // Close the current InfoWindow.
+          infoWindow.close();
+			
+          // Create a new InfoWindow.
+          infoWindow = new google.maps.InfoWindow({
+            position: mapsMouseEvent.latLng,
+          });
+          infoWindow.setContent(
+			"Here"
+            //JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+          );
+		  if (marker != null){
+		  marker.setMap(null);
+			}
+		
+		  if (mode == "login"){
+			  marker = new google.maps.Marker({
+				icon: image2,
+				position: mapsMouseEvent.latLng,
+				map,
+				title: "",
+			  });
+		  }else{
+			  marker = new google.maps.Marker({
+				icon: image,
+				position: mapsMouseEvent.latLng,
+				map,
+				title: "",
+			  });
+		  }
+
+
+		  console.log(mapsMouseEvent.latLng.toJSON());
+		  console.log(lastLatLng);
+		  lastLatLng = mapsMouseEvent.latLng.toJSON();
+		  setCookie("latLng", JSON.stringify(mapsMouseEvent.latLng.toJSON()));
+          //infoWindow.open(map);
+		  $(".mapBtn").addClass("btn-light");
+		  $(".mapBtn").removeClass("btn-dark");
+		
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAfueC7btr2QAXFFcOix7tZSXxDpmdsus8&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
+  </body>
+</html>
